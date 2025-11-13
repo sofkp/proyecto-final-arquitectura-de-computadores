@@ -8,36 +8,49 @@ module riscvsingle(input  clk, reset,
 
   localparam WIDTH = 32;
   
+  wire [31:0] PCNextF;
+  
   // stage if_id (D)
-  wire        RegWriteD, ALUSrcD, MemWriteD, BranchD, JumpD;
-  wire [1:0]  ResultSrcD, ImmSrcD;
-  wire [2:0]  ALUControlD;
-  wire [31:0] PCF, PCPlus4F;
-  wire [31:0] PCD, PCPlus4D, InstrD;
-  wire [31:0] RD1D, RD2D, ImmExtD;
+  wire RegWriteD, ALUSrcD, MemWriteD, BranchD, JumpD;
+  wire [1:0] ResultSrcD, ImmSrcD;
+  wire [2:0] ALUControlD;
+  wire [31:0] PCF, PCPlus4F, PCD, PCPlus4D, InstrD, RD1D, RD2D, ImmExtD;
 
   // stage id_ex (E)
-  wire        RegWriteE, ALUSrcE, MemWriteE, BranchE, JumpE;
-  wire [1:0]  ResultSrcE;
-  wire [2:0]  ALUControlE;
-  wire [31:0] PCE, PCPlus4E, RD1E, RD2E, ImmExtE;
-  wire [4:0]  RdE;
-  wire [31:0] ALUResultE, PCTargetE;
-  wire        ZeroE, PCSrcE;
+  wire RegWriteE, ALUSrcE, MemWriteE, BranchE, JumpE;
+  wire [1:0] ResultSrcE;
+  wire [2:0] ALUControlE;
+  wire [31:0] PCE, PCPlus4E, RD1E, RD2E, ImmExtE, ALUResultE, PCTargetE, SrcAE, SrcBE, prevB;
+  wire [4:0] RdE, Rs1E, Rs2E;
+  wire ZeroE, PCSrcE;
   
 
   // stage ex_mem (M)
-  wire        RegWriteM, MemWriteM;
-  wire [1:0]  ResultSrcM;
+  wire RegWriteM, MemWriteM;
+  wire [1:0] ResultSrcM;
   wire [31:0] PCPlus4M, ALUResultM, WriteDataM;
-  wire [4:0]  RdM;
+  wire [4:0] RdM;
 
   // stage mem_wb (W)
-  wire        RegWriteW;
-  wire [1:0]  ResultSrcW;
+  wire RegWriteW;
+  wire [1:0] ResultSrcW;
   wire [31:0] PCPlus4W, ALUResultW, ReadDataW;
-  wire [4:0]  RdW;
+  wire [4:0] RdW;
   wire [31:0] ResultW;
+  
+  //hazar unit 
+  wire [1:0] ForwardAE, ForwardBE;
+  wire StallF, StallD, FlushE;
+  
+  wire [4:0] Rs1D, Rs2D;
+  
+  assign Rs1D = InstrD[19:15];
+  assign Rs2D = InstrD[24:20];
+  
+  hazard hazard_unit(.Rs1E(Rs1E), .Rs2E(Rs2E), .RdM(RdM), .RdW(RdW), .RegWriteM(RegWriteM), .RegWriteW(RegWriteW),
+  .Rs1D(Rs1D), .Rs2D(Rs2D), .RdE(RdE), .ResultSrcE(ResultSrcE[0]),
+  .ForwardAE(ForwardAE), .ForwardBE(ForwardBE), .StallF(StallF), .StallD(StallD), .FlushE(FlushE) 
+  );
 
   
   //--------------------if_id stage--------------------
@@ -53,6 +66,7 @@ module riscvsingle(input  clk, reset,
   flopr #(WIDTH) pcreg(
     .clk(clk), 
     .reset(reset), 
+    .en(~StallF),
     .d(PCNextF), 
     .q(PCF)
   ); 
@@ -63,7 +77,7 @@ module riscvsingle(input  clk, reset,
     .y(PCPlus4F)
   ); 
 
-  if_id if_id_r (.clk(clk), .reset(reset),
+  if_id if_id_r (.clk(clk), .reset(reset), .en(~StallD),
     .InstrF(Instr), .PCF(PCF), .PCPlus4F(PCPlus4F), //ins
     .InstrD(InstrD), .PCD(PCD), .PCPlus4D(PCPlus4D) //outs
   );
@@ -88,9 +102,9 @@ module riscvsingle(input  clk, reset,
 
   regfile     rf(
     .clk(clk), 
-    .we3(RegWrite), 
-    .a1(InstrD[19:15]), 
-    .a2(InstrD[24:20]), 
+    .we3(RegWriteW), 
+    .a1(Rs1D), 
+    .a2(Rs2D), 
     .a3(RdW), 
     .wd3(ResultW), 
     .rd1(RD1D), 
@@ -103,26 +117,27 @@ module riscvsingle(input  clk, reset,
     .immext(ImmExtD)
   );
 
-  id_ex id_ex_r(.clk(clk), .reset(reset),
+  id_ex id_ex_r(.clk(clk), .reset(reset), .clr(FlushE),
     //ins
     .RegWriteD (RegWriteD), .MemWriteD(MemWriteD), .ALUSrcD(ALUSrcD), .BranchD(BranchD), .JumpD(JumpD), .ALUControlD(ALUControlD), .ResultSrcD(ResultSrcD),
-    .RD1D(RD1D), .RD2D(RD2D), .ImmExtD(ImmExtD),.PCD(PCD), .PCPlus4D(PCPlus4D), .RdD(InstrD[11:7]),
+    .RD1D(RD1D), .RD2D(RD2D), .ImmExtD(ImmExtD),.PCD(PCD), .PCPlus4D(PCPlus4D), .RdD(InstrD[11:7]), .Rs1D(Rs1D), .Rs2D(Rs2D),
     //outs
     .RegWriteE (RegWriteE), .MemWriteE(MemWriteE), .ALUSrcE(ALUSrcE), .BranchE(BranchE), .JumpE(JumpE), .ALUControlE(ALUControlE), .ResultSrcE(ResultSrcE),
-    .RD1E(RD1E), .RD2E(RD2E), .ImmExtE(ImmExtE), .PCE(PCE), .PCPlus4E(PCPlus4E), .RdE(RdE)
+    .RD1E(RD1E), .RD2E(RD2E), .ImmExtE(ImmExtE), .PCE(PCE), .PCPlus4E(PCPlus4E), .RdE(RdE), .Rs1E(Rs1E), .Rs2E(Rs2E)
   );
   
   //--------------------ex_mem stage--------------------
   
    // ALU logic
+  mux3  #(WIDTH) bmux3(.d0(RD2E), .d1(ResultW), .d2(ALUResultM), .s(ForwardBE), .y(prevB));
   mux2 #(WIDTH)  srcbmux(
-    .d0(RD2E), 
+    .d0(prevB), 
     .d1(ImmExtE), 
     .s(ALUSrcE), 
     .y(SrcBE)
   ); 
   
-  wire [31:0] SrcAE = RD1E;
+  mux3 #(WIDTH) srcamux (.d0(RD1E), .d1(ResultW), .d2(ALUResultM), .s(ForwardAE), .y(SrcAE));
 
   alu         alu(
     .a(SrcAE), 
@@ -142,7 +157,7 @@ module riscvsingle(input  clk, reset,
 
   ex_mem ex_mem_r(.clk(clk), .reset(reset),
     .ResultSrcE(ResultSrcE), .RegWriteE (RegWriteE), .MemWriteE(MemWriteE), //ins ctr
-    .ALUResultE(ALUResultE), .WriteDataE(RD2E),.RdE(RdE), .PCPlus4E(PCPlus4E), //ins datapath
+    .ALUResultE(ALUResultE), .WriteDataE(prevB),.RdE(RdE), .PCPlus4E(PCPlus4E), //ins datapath
 
     .ResultSrcM(ResultSrcM), .RegWriteM (RegWriteM), .MemWriteM(MemWriteM),  //outs ctr
     .ALUResultM(ALUResultM), .WriteDataM(WriteDataM), .RdM(RdM), .PCPlus4M(PCPlus4M) //outs datapath
@@ -166,5 +181,10 @@ module riscvsingle(input  clk, reset,
     .s(ResultSrcW), 
     .y(ResultW)
   ); 
+  
+  assign DataAdr = ALUResultM;
+  assign WriteData = WriteDataM;
+  assign MemWrite = MemWriteM;
+
 
 endmodule
