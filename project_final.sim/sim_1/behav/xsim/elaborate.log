@@ -5,8 +5,29 @@ Running: C:/Xilinx/2025.1/Vivado/bin/unwrapped/win64.o/xelab.exe --incr --debug 
 Using 2 slave threads.
 Starting static elaboration
 Pass Through NonSizing Optimizer
-ERROR: [VRFC 10-3180] cannot find port 'flush' on this module [C:/Users/sofia/Desktop/Documentos/2025/arqui/project_final/Src_files/riscvsingle.v:80]
-ERROR: [VRFC 10-8530] module 'mux2(WIDTH=32)' is ignored due to previous errors [C:/Users/sofia/Desktop/Documentos/2025/arqui/project_final/Src_files/mux2.v:3]
-ERROR: [VRFC 10-8530] module 'flopr(WIDTH=32)' is ignored due to previous errors [C:/Users/sofia/Desktop/Documentos/2025/arqui/project_final/Src_files/flopr.v:3]
-ERROR: [VRFC 10-8530] module 'mux3(WIDTH=32)' is ignored due to previous errors [C:/Users/sofia/Desktop/Documentos/2025/arqui/project_final/Src_files/mux3.v:3]
-ERROR: [XSIM 43-3322] Static elaboration of top level Verilog design unit(s) in library work failed.
+Completed static elaboration
+Starting simulation data flow analysis
+Completed simulation data flow analysis
+Time Resolution for simulation is 1ps
+Compiling module xil_defaultlib.hazard
+Compiling module xil_defaultlib.mux2(WIDTH=32)
+Compiling module xil_defaultlib.flopr(WIDTH=32)
+Compiling module xil_defaultlib.adder
+Compiling module xil_defaultlib.if_id
+Compiling module xil_defaultlib.maindec
+Compiling module xil_defaultlib.aludec
+Compiling module xil_defaultlib.controller
+Compiling module xil_defaultlib.regfile
+Compiling module xil_defaultlib.extend
+Compiling module xil_defaultlib.id_ex
+Compiling module xil_defaultlib.mux3(WIDTH=32)
+Compiling module xil_defaultlib.alu
+Compiling module xil_defaultlib.ex_mem
+Compiling module xil_defaultlib.mem_wb
+Compiling module xil_defaultlib.riscvsingle
+Compiling module xil_defaultlib.imem
+Compiling module xil_defaultlib.dmem
+Compiling module xil_defaultlib.top
+Compiling module xil_defaultlib.testbench
+Compiling module xil_defaultlib.glbl
+Built simulation snapshot testbench_behav

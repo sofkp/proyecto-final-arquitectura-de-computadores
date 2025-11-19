@@ -44,11 +44,12 @@ module riscvsingle(input  clk, reset,
   
   wire [4:0] Rs1D, Rs2D;
   
+  wire[31:0] InstrE,InstrM,InstrW;
   assign Rs1D = InstrD[19:15];
   assign Rs2D = InstrD[24:20];
   
   hazard hazard_unit(.Rs1E(Rs1E), .Rs2E(Rs2E), .RdM(RdM), .RdW(RdW), .RegWriteM(RegWriteM), .RegWriteW(RegWriteW),
-  .Rs1D(Rs1D), .Rs2D(Rs2D), .RdE(RdE), .ResultSrcE(ResultSrcE[0]),
+  .Rs1D(Rs1D), .Rs2D(Rs2D), .RdE(RdE), .ResultSrcE(ResultSrcE[0]), .PCSrcE(PCSrcE),
   .ForwardAE(ForwardAE), .ForwardBE(ForwardBE), .StallF(StallF), .StallD(StallD), .FlushE(FlushE), .FlushD(FlushD)
   );
 
@@ -77,7 +78,7 @@ module riscvsingle(input  clk, reset,
     .y(PCPlus4F)
   ); 
 
-  if_id if_id_r (.clk(clk), .reset(reset), .en(~StallD), .flush(FlushD), 
+  if_id if_id_r (.clk(clk), .reset(reset), .en(~StallD), .FlushD(FlushD), 
     .InstrF(Instr), .PCF(PCF), .PCPlus4F(PCPlus4F), //ins
     .InstrD(InstrD), .PCD(PCD), .PCPlus4D(PCPlus4D) //outs
   );
@@ -121,6 +122,7 @@ module riscvsingle(input  clk, reset,
     //ins
     .RegWriteD (RegWriteD), .MemWriteD(MemWriteD), .ALUSrcD(ALUSrcD), .BranchD(BranchD), .JumpD(JumpD), .ALUControlD(ALUControlD), .ResultSrcD(ResultSrcD),
     .RD1D(RD1D), .RD2D(RD2D), .ImmExtD(ImmExtD),.PCD(PCD), .PCPlus4D(PCPlus4D), .RdD(InstrD[11:7]), .Rs1D(Rs1D), .Rs2D(Rs2D),
+    .InstrD(InstrD),.InstrE(InstrE),
     //outs
     .RegWriteE (RegWriteE), .MemWriteE(MemWriteE), .ALUSrcE(ALUSrcE), .BranchE(BranchE), .JumpE(JumpE), .ALUControlE(ALUControlE), .ResultSrcE(ResultSrcE),
     .RD1E(RD1E), .RD2E(RD2E), .ImmExtE(ImmExtE), .PCE(PCE), .PCPlus4E(PCPlus4E), .RdE(RdE), .Rs1E(Rs1E), .Rs2E(Rs2E)
@@ -158,7 +160,7 @@ module riscvsingle(input  clk, reset,
   ex_mem ex_mem_r(.clk(clk), .reset(reset),
     .ResultSrcE(ResultSrcE), .RegWriteE (RegWriteE), .MemWriteE(MemWriteE), //ins ctr
     .ALUResultE(ALUResultE), .WriteDataE(prevB),.RdE(RdE), .PCPlus4E(PCPlus4E), //ins datapath
-
+    .InstrE(InstrE),.InstrM(InstrM),
     .ResultSrcM(ResultSrcM), .RegWriteM (RegWriteM), .MemWriteM(MemWriteM),  //outs ctr
     .ALUResultM(ALUResultM), .WriteDataM(WriteDataM), .RdM(RdM), .PCPlus4M(PCPlus4M) //outs datapath
   );
@@ -168,7 +170,7 @@ module riscvsingle(input  clk, reset,
   mem_wb mem_wb_r(.clk(clk), .reset(reset),
     .RegWriteM (RegWriteM), .ResultSrcM(ResultSrcM), //ins ctr
     .ALUResultM(ALUResultM), .ReadDataM(ReadData), .PCPlus4M(PCPlus4M), .RdM(RdM), //ins datapath
-
+    .InstrM(InstrM),.InstrW(InstrW),
     .RegWriteW (RegWriteW), .ResultSrcW(ResultSrcW), //outs ctr
     .ALUResultW(ALUResultW), .ReadDataW(ReadDataW), .PCPlus4W(PCPlus4W), .RdW(RdW)//outs datapath
   );

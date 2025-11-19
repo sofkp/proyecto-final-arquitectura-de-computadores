@@ -2,9 +2,9 @@
 
 module ex_mem(input clk, input reset, 
 input [1:0] ResultSrcE, input RegWriteE, MemWriteE,
-input [31:0] ALUResultE, WriteDataE, input [4:0] RdE, input [31:0] PCPlus4E, 
+input [31:0] ALUResultE, WriteDataE, InstrE, input [4:0] RdE, input [31:0] PCPlus4E, 
 output reg [1:0] ResultSrcM, output reg RegWriteM, MemWriteM,
-output reg  [31:0] ALUResultM, WriteDataM, output reg [4:0] RdM, output reg  [31:0] PCPlus4M );
+output reg  [31:0] ALUResultM, WriteDataM, InstrM, output reg [4:0] RdM, output reg  [31:0] PCPlus4M );
 
 
     always @(posedge clk) begin
@@ -16,6 +16,7 @@ output reg  [31:0] ALUResultM, WriteDataM, output reg [4:0] RdM, output reg  [31
             WriteDataM <= 0;
             RdM <= 0;
             PCPlus4M <= 0;
+            InstrM <= 0;
         end else begin
             RegWriteM <= RegWriteE;
             MemWriteM <= MemWriteE;
@@ -24,6 +25,7 @@ output reg  [31:0] ALUResultM, WriteDataM, output reg [4:0] RdM, output reg  [31
             WriteDataM <= WriteDataE;
             RdM <= RdE;
             PCPlus4M <= PCPlus4E;
+            InstrM <= InstrE;
         end
   end
 

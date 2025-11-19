@@ -1,9 +1,9 @@
 `timescale 1ns / 1ps
 module mem_wb(input clk, input reset, 
 input RegWriteM, input [1:0] ResultSrcM,
-input [31:0] ALUResultM, ReadDataM, PCPlus4M, input [4:0] RdM,
+input [31:0] ALUResultM, ReadDataM, PCPlus4M, InstrM, input [4:0] RdM,
 output reg RegWriteW, output reg [1:0] ResultSrcW,
-output reg [31:0] ALUResultW, ReadDataW, PCPlus4W, output reg [4:0] RdW );
+output reg [31:0] ALUResultW, ReadDataW, PCPlus4W,InstrW, output reg [4:0] RdW );
   
   always @(posedge clk) begin
     if (reset) begin
@@ -13,6 +13,7 @@ output reg [31:0] ALUResultW, ReadDataW, PCPlus4W, output reg [4:0] RdW );
         ReadDataW<= 0;
         RdW<= 0;
         PCPlus4W<= 0;
+        InstrW<= 0;
     end else begin
         RegWriteW <= RegWriteM;
         ResultSrcW <= ResultSrcM;
@@ -20,6 +21,7 @@ output reg [31:0] ALUResultW, ReadDataW, PCPlus4W, output reg [4:0] RdW );
         ReadDataW <= ReadDataM;
         RdW <= RdM;
         PCPlus4W <= PCPlus4M;
+        InstrW<=InstrM;
     end
   end
 endmodule

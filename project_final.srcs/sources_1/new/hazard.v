@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module hazard( input [4:0] Rs1E, Rs2E, input [4:0] RdM, RdW, input RegWriteM, RegWriteW,
+    module hazard( input [4:0] Rs1E, Rs2E, input [4:0] RdM, RdW, input RegWriteM, RegWriteW,
 input [4:0] Rs1D, Rs2D, input [4:0] RdE, input ResultSrcE, PCSrcE,  
 output reg [1:0] ForwardAE, ForwardBE,
 output StallF, StallD, FlushE, FlushD);
