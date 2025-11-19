@@ -1,0 +1,28 @@
+# compile verilog/system verilog design source files
+verilog xil_defaultlib  --include "../../../../../../../../../../../Xilinx/2025.1/Vivado/data/rsb/busdef" \
+"../../../../Src_files/adder.v" \
+"../../../../Src_files/alu.v" \
+"../../../../Src_files/aludec.v" \
+"../../../../Src_files/controller.v" \
+"../../../../Src_files/dmem.v" \
+"../../../../Src_files/ex_mem.v" \
+"../../../../Src_files/extend.v" \
+"../../../../Src_files/flopr.v" \
+"../../../../project_final.srcs/sources_1/new/hazard.v" \
+"../../../../Src_files/id_ex.v" \
+"../../../../Src_files/if_id.v" \
+"../../../../Src_files/imem.v" \
+"../../../../Src_files/maindec.v" \
+"../../../../Src_files/mem_wb.v" \
+"../../../../Src_files/mux2.v" \
+"../../../../Src_files/mux3.v" \
+"../../../../Src_files/regfile.v" \
+"../../../../Src_files/riscvsingle.v" \
+"../../../../Src_files/top.v" \
+"../../../../Src_files/testbench.v" \
+
+# compile glbl module
+verilog xil_defaultlib "glbl.v"
+
+# Do not sort compile order
+nosort

@@ -1,9 +1,9 @@
 `timescale 1ns / 1ps
 
 module hazard( input [4:0] Rs1E, Rs2E, input [4:0] RdM, RdW, input RegWriteM, RegWriteW,
-input [4:0] Rs1D, Rs2D, input [4:0] RdE, input ResultSrcE,
+input [4:0] Rs1D, Rs2D, input [4:0] RdE, input ResultSrcE, PCSrcE,  
 output reg [1:0] ForwardAE, ForwardBE,
-output StallF, StallD, FlushE);
+output StallF, StallD, FlushE, FlushD);
 
     wire lwStall;
 
@@ -21,7 +21,8 @@ output StallF, StallD, FlushE);
     
     //stalling
     assign lwStall = ((Rs1D == RdE) || (Rs2D == RdE)) && ResultSrcE ;
-    assign FlushE = lwStall;
+    assign FlushE = lwStall | PCSrcE;
     assign StallD = lwStall;
     assign StallF = lwStall;
+    assign FlushD = PCSrcE;
 endmodule

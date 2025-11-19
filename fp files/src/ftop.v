@@ -1,5 +1,5 @@
 `timescale 1ns / 1ps
-module top(
+module ftop(
     input clk,
     input btnU, // reset
     input btnC, // start
