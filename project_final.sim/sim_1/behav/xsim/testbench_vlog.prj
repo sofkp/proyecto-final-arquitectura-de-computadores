@@ -7,7 +7,14 @@ verilog xil_defaultlib  --include "../../../../../../../../../../../Xilinx/2025.
 "../../../../Src_files/dmem.v" \
 "../../../../Src_files/ex_mem.v" \
 "../../../../Src_files/extend.v" \
+"../../../../fp files/src/fadd.v" \
+"../../../../fp files/src/falu.v" \
+"../../../../fp files/src/fdiv.v" \
 "../../../../Src_files/flopr.v" \
+"../../../../fp files/src/fmul.v" \
+"../../../../fp files/src/fp16_32.v" \
+"../../../../fp files/src/fp32_16.v" \
+"../../../../fp files/src/fsub.v" \
 "../../../../project_final.srcs/sources_1/new/hazard.v" \
 "../../../../Src_files/id_ex.v" \
 "../../../../Src_files/if_id.v" \

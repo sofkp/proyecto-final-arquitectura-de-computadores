@@ -15,16 +15,22 @@ module testbench();
   );
 
   // initialize test
-  initial begin
-    reset = 1; # 22;
-    reset = 0;
-  end
+    initial begin
+      reset = 1;
+      #50;
+      reset = 0;
+      #100000;
+      $finish;
+    end
+
+
 
   // generate clock to sequence tests
   always begin
     clk = 1;
-    # 10; clk = 0; # 10;
+    # 500; clk = 0; # 500;
   end
+
 
   // check results
   

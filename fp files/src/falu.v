@@ -8,9 +8,9 @@ module falu(
     input [1:0] op_code, // 00=add, 01=sub, 10=mul, 11=div
     input mode_fp, // 0=half, 1=single
     input round_mode,
-    output reg [31:0] result,
-    output reg valid_out,
-    output reg [4:0] flags // {invalid, overflow, underflow, div_zero, inexact}
+    output [31:0] result,
+    output valid_out,
+    output [4:0] flags // {invalid, overflow, underflow, div_zero, inexact}
 );
 
     wire [31:0] add_res, sub_res, mul_res, div_res;
@@ -35,19 +35,9 @@ module falu(
         endcase
     end
 
-    always @(posedge clk) begin
-        if (rst) begin
-            result <= 32'b0;
-            valid_out <= 1'b0;
-            flags <= 5'b0;
-        end else if (start) begin
-            result <= ress;
-            flags <= flagss;
-            valid_out <= 1'b1;  
-        end else begin
-            valid_out <= 1'b0; 
-        end
-    end
+    assign result = ress;
+    assign flags = flagss;
+    assign valid_out = start;
 
 
 endmodule

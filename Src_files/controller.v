@@ -6,7 +6,8 @@ module controller(input  [6:0] op,
                   output [1:0] ResultSrc, 
                   output MemWrite, ALUSrc, RegWrite, Jump, Branch,
                   output [1:0] ImmSrc, 
-                  output [2:0] ALUControl);
+                  output [2:0] ALUControl,
+                  output FP, FPlw, FPsw);
   
   wire [1:0] ALUOp; 
   
@@ -19,7 +20,8 @@ module controller(input  [6:0] op,
     .RegWrite(RegWrite), 
     .Jump(Jump), 
     .ImmSrc(ImmSrc), 
-    .ALUOp(ALUOp)
+    .ALUOp(ALUOp),
+    .FP(FP), .FPlw(FPlw), .FPsw(FPsw)
   ); 
 
   aludec  ad(

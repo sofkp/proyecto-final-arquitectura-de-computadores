@@ -1,10 +1,14 @@
 `timescale 1ns / 1ps
 
-module id_ex(input clk, input reset, clr,
-input RegWriteD, MemWriteD, ALUSrcD, BranchD, JumpD, input [2:0] ALUControlD, input [1:0] ResultSrcD,
-input [31:0] RD1D, RD2D, ImmExtD, PCD, PCPlus4D, InstrD, input  [4:0] RdD, Rs1D, Rs2D, 
-output reg RegWriteE, MemWriteE, ALUSrcE, BranchE, JumpE, output reg [2:0] ALUControlE, output reg [1:0] ResultSrcE,
-output reg [31:0] RD1E, RD2E, ImmExtE, PCE, PCPlus4E, InstrE, output reg [4:0] RdE, Rs1E, Rs2E);
+module id_ex(input clk, input reset, clr, FPD, FPlwD, FPswD,
+input RegWriteD, MemWriteD, ALUSrcD, BranchD, JumpD, 
+input [2:0] ALUControlD, input [1:0] ResultSrcD,
+input [31:0] RD1D, RD2D, ImmExtD, PCD, PCPlus4D, InstrD, 
+input  [4:0] RdD, Rs1D, Rs2D,
+output reg RegWriteE, MemWriteE, ALUSrcE, BranchE, JumpE, FPE, FPlwE, FPswE,
+output reg [2:0] ALUControlE, output reg [1:0] ResultSrcE,
+output reg [31:0] RD1E, RD2E, ImmExtE, PCE, PCPlus4E, InstrE, 
+output reg [4:0] RdE, Rs1E, Rs2E);
 
     always @(posedge clk) begin
     if (reset || clr) begin
@@ -24,6 +28,9 @@ output reg [31:0] RD1E, RD2E, ImmExtE, PCE, PCPlus4E, InstrE, output reg [4:0] R
         Rs1E <= 0;
         Rs2E <= 0;
         InstrE <= 0;
+        FPE <= 0;
+        FPlwE <= 0;
+        FPswE <= 0;
     end else begin
         RegWriteE <= RegWriteD;
         MemWriteE <= MemWriteD;
@@ -41,6 +48,9 @@ output reg [31:0] RD1E, RD2E, ImmExtE, PCE, PCPlus4E, InstrE, output reg [4:0] R
         Rs1E <= Rs1D;
         Rs2E <= Rs2D;
         InstrE <= InstrD;
+        FPE <= FPD;
+        FPlwE <=FPlwD;
+        FPswE <= FPswD;
     end
   end
 endmodule

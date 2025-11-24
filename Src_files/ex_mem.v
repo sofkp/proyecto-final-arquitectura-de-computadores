@@ -1,10 +1,13 @@
 `timescale 1ns / 1ps
 
-module ex_mem(input clk, input reset, 
-input [1:0] ResultSrcE, input RegWriteE, MemWriteE,
-input [31:0] ALUResultE, WriteDataE, InstrE, input [4:0] RdE, input [31:0] PCPlus4E, 
-output reg [1:0] ResultSrcM, output reg RegWriteM, MemWriteM,
-output reg  [31:0] ALUResultM, WriteDataM, InstrM, output reg [4:0] RdM, output reg  [31:0] PCPlus4M );
+module ex_mem(input clk, input reset, FPlwE, FPswE,
+input [1:0] ResultSrcE, input RegWriteE, MemWriteE, 
+input [31:0] ALUResultE, WriteDataE, InstrE, input [4:0] RdE, 
+input [31:0] PCPlus4E, 
+output reg [1:0] ResultSrcM, 
+output reg RegWriteM, MemWriteM, FPlwM, FPswM,
+output reg  [31:0] ALUResultM, WriteDataM, InstrM, 
+output reg [4:0] RdM, output reg  [31:0] PCPlus4M );
 
 
     always @(posedge clk) begin
@@ -17,6 +20,8 @@ output reg  [31:0] ALUResultM, WriteDataM, InstrM, output reg [4:0] RdM, output 
             RdM <= 0;
             PCPlus4M <= 0;
             InstrM <= 0;
+            FPlwM <= 0;
+            FPswM <= 0;
         end else begin
             RegWriteM <= RegWriteE;
             MemWriteM <= MemWriteE;
@@ -26,6 +31,8 @@ output reg  [31:0] ALUResultM, WriteDataM, InstrM, output reg [4:0] RdM, output 
             RdM <= RdE;
             PCPlus4M <= PCPlus4E;
             InstrM <= InstrE;
+            FPlwM <= FPlwE;
+            FPswM <= FPswE;
         end
   end
 

@@ -11,13 +11,13 @@ module riscvsingle(input  clk, reset,
   wire [31:0] PCNextF;
   
   // stage if_id (D)
-  wire RegWriteD, ALUSrcD, MemWriteD, BranchD, JumpD;
+  wire RegWriteD, ALUSrcD, MemWriteD, BranchD, JumpD, FPD, FPlwD, FPswD;
   wire [1:0] ResultSrcD, ImmSrcD;
   wire [2:0] ALUControlD;
   wire [31:0] PCF, PCPlus4F, PCD, PCPlus4D, InstrD, RD1D, RD2D, ImmExtD;
 
   // stage id_ex (E)
-  wire RegWriteE, ALUSrcE, MemWriteE, BranchE, JumpE;
+  wire RegWriteE, ALUSrcE, MemWriteE, BranchE, JumpE, FPE, FPlwE, FPswE;
   wire [1:0] ResultSrcE;
   wire [2:0] ALUControlE;
   wire [31:0] PCE, PCPlus4E, RD1E, RD2E, ImmExtE, ALUResultE, PCTargetE, SrcAE, SrcBE, prevB;
@@ -26,7 +26,7 @@ module riscvsingle(input  clk, reset,
   
 
   // stage ex_mem (M)
-  wire RegWriteM, MemWriteM;
+  wire RegWriteM, MemWriteM, FPlwM, FPswM;
   wire [1:0] ResultSrcM;
   wire [31:0] PCPlus4M, ALUResultM, WriteDataM;
   wire [4:0] RdM;
@@ -98,7 +98,8 @@ module riscvsingle(input  clk, reset,
     .Jump     (JumpD),
     .ImmSrc   (ImmSrcD),
     .ALUControl(ALUControlD),
-    .Branch   (BranchD)
+    .Branch   (BranchD),
+    .FP(FPD),.FPlw(FPlwD),.FPsw(FPswD)
   );
 
   regfile     rf(
@@ -120,12 +121,16 @@ module riscvsingle(input  clk, reset,
 
   id_ex id_ex_r(.clk(clk), .reset(reset), .clr(FlushE),
     //ins
-    .RegWriteD (RegWriteD), .MemWriteD(MemWriteD), .ALUSrcD(ALUSrcD), .BranchD(BranchD), .JumpD(JumpD), .ALUControlD(ALUControlD), .ResultSrcD(ResultSrcD),
-    .RD1D(RD1D), .RD2D(RD2D), .ImmExtD(ImmExtD),.PCD(PCD), .PCPlus4D(PCPlus4D), .RdD(InstrD[11:7]), .Rs1D(Rs1D), .Rs2D(Rs2D),
-    .InstrD(InstrD),.InstrE(InstrE),
+    .RegWriteD (RegWriteD), .MemWriteD(MemWriteD), .ALUSrcD(ALUSrcD), .BranchD(BranchD),
+    .JumpD(JumpD), .ALUControlD(ALUControlD), .ResultSrcD(ResultSrcD),
+    .RD1D(RD1D), .RD2D(RD2D), .ImmExtD(ImmExtD),.PCD(PCD), .PCPlus4D(PCPlus4D), 
+    .RdD(InstrD[11:7]), .Rs1D(Rs1D), .Rs2D(Rs2D),
+    .InstrD(InstrD),.InstrE(InstrE), .FPD(FPD), .FPlwD(FPlwD), .FPswD(FPswD),
     //outs
-    .RegWriteE (RegWriteE), .MemWriteE(MemWriteE), .ALUSrcE(ALUSrcE), .BranchE(BranchE), .JumpE(JumpE), .ALUControlE(ALUControlE), .ResultSrcE(ResultSrcE),
-    .RD1E(RD1E), .RD2E(RD2E), .ImmExtE(ImmExtE), .PCE(PCE), .PCPlus4E(PCPlus4E), .RdE(RdE), .Rs1E(Rs1E), .Rs2E(Rs2E)
+    .RegWriteE (RegWriteE), .MemWriteE(MemWriteE), .ALUSrcE(ALUSrcE), .BranchE(BranchE),
+    .JumpE(JumpE), .ALUControlE(ALUControlE), .ResultSrcE(ResultSrcE),
+    .RD1E(RD1E), .RD2E(RD2E), .ImmExtE(ImmExtE), .PCE(PCE), .PCPlus4E(PCPlus4E), .RdE(RdE), 
+    .Rs1E(Rs1E), .Rs2E(Rs2E), .FPE(FPE), .FPlwE(FPlwE), .FPswE(FPswE)
   );
   
   //--------------------ex_mem stage--------------------
@@ -140,14 +145,36 @@ module riscvsingle(input  clk, reset,
   ); 
   
   mux3 #(WIDTH) srcamux (.d0(RD1E), .d1(ResultW), .d2(ALUResultM), .s(ForwardAE), .y(SrcAE));
-
+  
+  wire [31:0] ALUResultE_normal;
+  
   alu         alu(
     .a(SrcAE), 
     .b(SrcBE), 
     .alucontrol(ALUControlE), 
-    .result(ALUResultE), 
+    .result(ALUResultE_normal), 
     .zero(ZeroE)
   ); 
+  
+  wire [1:0] FPOp;
+  assign FPOp = (InstrE[31:25] == 7'b0000000) ? 2'b00 : //fadd
+                (InstrE[31:25] == 7'b0000100) ? 2'b01 : //fsub
+                (InstrE[31:25] == 7'b0001000) ? 2'b10 : //fmul
+                (InstrE[31:25] == 7'b0001100) ? 2'b11 : //fdiv
+                                                2'b00; //default
+    
+  wire mode_fp = 1'b1; //por ahora solo fp de 32
+  wire fp_start = FPE;
+  
+  wire [31:0] FPResultE;
+  wire FPValidE;
+  wire [4:0] FPFlagsE;
+
+  falu falu_unit(.clk(clk),.rst(reset),.start(fp_start),.op_a(SrcAE),.op_b(SrcBE),
+    .op_code(FPOp),.mode_fp(mode_fp),.round_mode(1'b0),.result(FPResultE),.valid_out(FPValidE),
+    .flags(FPFlagsE) );
+    
+  mux2 #(WIDTH) alu_mux (.d0(ALUResultE_normal),.d1(FPResultE),.s(FPE),.y(ALUResultE));
   
   adder       pcaddbranch(
     .a(PCE), 
@@ -157,10 +184,11 @@ module riscvsingle(input  clk, reset,
 
   assign PCSrcE = (BranchE & ZeroE) | JumpE;
 
-  ex_mem ex_mem_r(.clk(clk), .reset(reset),
+  ex_mem ex_mem_r(.clk(clk), .reset(reset), .FPlwE(FPlwE),.FPswE(FPswE),
     .ResultSrcE(ResultSrcE), .RegWriteE (RegWriteE), .MemWriteE(MemWriteE), //ins ctr
     .ALUResultE(ALUResultE), .WriteDataE(prevB),.RdE(RdE), .PCPlus4E(PCPlus4E), //ins datapath
     .InstrE(InstrE),.InstrM(InstrM),
+    .FPlwM(FPlwM),.FPswM(FPswM),
     .ResultSrcM(ResultSrcM), .RegWriteM (RegWriteM), .MemWriteM(MemWriteM),  //outs ctr
     .ALUResultM(ALUResultM), .WriteDataM(WriteDataM), .RdM(RdM), .PCPlus4M(PCPlus4M) //outs datapath
   );
