@@ -11,30 +11,18 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="15,459.726 ns"></ZoomStartTime>
-      <ZoomEndTime time="19,169.727 ns"></ZoomEndTime>
-      <Cursor1Time time="17,310.859 ns"></Cursor1Time>
+      <ZoomStartTime time="8.391666 us"></ZoomStartTime>
+      <ZoomEndTime time="17.521667 us"></ZoomEndTime>
+      <Cursor1Time time="14.161666 us"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="91"></NameColumnWidth>
       <ValueColumnWidth column_width="90"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="33" />
+   <WVObjectSize size="24" />
    <wvobject fp_name="/testbench/reset" type="logic">
       <obj_property name="ElementShortName">reset</obj_property>
       <obj_property name="ObjectShortName">reset</obj_property>
-   </wvobject>
-   <wvobject fp_name="/testbench/WriteData" type="array">
-      <obj_property name="ElementShortName">WriteData[31:0]</obj_property>
-      <obj_property name="ObjectShortName">WriteData[31:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/testbench/DataAdr" type="array">
-      <obj_property name="ElementShortName">DataAdr[31:0]</obj_property>
-      <obj_property name="ObjectShortName">DataAdr[31:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/testbench/MemWrite" type="logic">
-      <obj_property name="ElementShortName">MemWrite</obj_property>
-      <obj_property name="ObjectShortName">MemWrite</obj_property>
    </wvobject>
    <wvobject fp_name="/testbench/clk" type="logic">
       <obj_property name="ElementShortName">clk</obj_property>
@@ -60,14 +48,9 @@
       <obj_property name="ElementShortName">InstrW[31:0]</obj_property>
       <obj_property name="ObjectShortName">InstrW[31:0]</obj_property>
    </wvobject>
-   <wvobject fp_name="/testbench/dut/rvsingle/ex_mem_r/ALUResultM" type="array">
-      <obj_property name="ElementShortName">ALUResultM[31:0]</obj_property>
-      <obj_property name="ObjectShortName">ALUResultM[31:0]</obj_property>
-      <obj_property name="Radix">HEXRADIX</obj_property>
-   </wvobject>
-   <wvobject fp_name="/testbench/dut/rvsingle/ex_mem_r/WriteDataM" type="array">
-      <obj_property name="ElementShortName">WriteDataM[31:0]</obj_property>
-      <obj_property name="ObjectShortName">WriteDataM[31:0]</obj_property>
+   <wvobject fp_name="/testbench/dut/rvsingle/FPOp" type="array">
+      <obj_property name="ElementShortName">FPOp[1:0]</obj_property>
+      <obj_property name="ObjectShortName">FPOp[1:0]</obj_property>
    </wvobject>
    <wvobject fp_name="/testbench/dut/rvsingle/falu_unit/op_a" type="array">
       <obj_property name="ElementShortName">op_a[31:0]</obj_property>
@@ -80,6 +63,10 @@
    <wvobject fp_name="/testbench/dut/rvsingle/falu_unit/result" type="array">
       <obj_property name="ElementShortName">result[31:0]</obj_property>
       <obj_property name="ObjectShortName">result[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/testbench/dut/rvsingle/ex_mem_r/ALUResultE" type="array">
+      <obj_property name="ElementShortName">ALUResultE[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ALUResultE[31:0]</obj_property>
    </wvobject>
    <wvobject fp_name="/testbench/dut/rvsingle/ex_mem_r/WriteDataE" type="array">
       <obj_property name="ElementShortName">WriteDataE[31:0]</obj_property>
@@ -97,14 +84,6 @@
       <obj_property name="ElementShortName">result[31:0]</obj_property>
       <obj_property name="ObjectShortName">result[31:0]</obj_property>
    </wvobject>
-   <wvobject fp_name="/testbench/dut/rvsingle/id_ex_r/RD1E" type="array">
-      <obj_property name="ElementShortName">RD1E[31:0]</obj_property>
-      <obj_property name="ObjectShortName">RD1E[31:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/testbench/dut/rvsingle/id_ex_r/RD2E" type="array">
-      <obj_property name="ElementShortName">RD2E[31:0]</obj_property>
-      <obj_property name="ObjectShortName">RD2E[31:0]</obj_property>
-   </wvobject>
    <wvobject fp_name="/testbench/dut/dmem/a" type="array">
       <obj_property name="ElementShortName">a[31:0]</obj_property>
       <obj_property name="ObjectShortName">a[31:0]</obj_property>
@@ -113,44 +92,28 @@
       <obj_property name="ElementShortName">wd[31:0]</obj_property>
       <obj_property name="ObjectShortName">wd[31:0]</obj_property>
    </wvobject>
-   <wvobject fp_name="/testbench/dut/rvsingle/rf/a3" type="array">
+   <wvobject fp_name="/testbench/dut/rvsingle/frf/a1" type="array">
+      <obj_property name="ElementShortName">a1[4:0]</obj_property>
+      <obj_property name="ObjectShortName">a1[4:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/testbench/dut/rvsingle/frf/a2" type="array">
+      <obj_property name="ElementShortName">a2[4:0]</obj_property>
+      <obj_property name="ObjectShortName">a2[4:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/testbench/dut/rvsingle/frf/a3" type="array">
       <obj_property name="ElementShortName">a3[4:0]</obj_property>
       <obj_property name="ObjectShortName">a3[4:0]</obj_property>
    </wvobject>
-   <wvobject fp_name="/testbench/dut/rvsingle/rf/wd3" type="array">
+   <wvobject fp_name="/testbench/dut/rvsingle/frf/wd3" type="array">
       <obj_property name="ElementShortName">wd3[31:0]</obj_property>
       <obj_property name="ObjectShortName">wd3[31:0]</obj_property>
    </wvobject>
-   <wvobject fp_name="/testbench/dut/rvsingle/srcbmux/d0" type="array">
-      <obj_property name="ElementShortName">d0[31:0]</obj_property>
-      <obj_property name="ObjectShortName">d0[31:0]</obj_property>
+   <wvobject fp_name="/testbench/dut/rvsingle/frf/rd1" type="array">
+      <obj_property name="ElementShortName">rd1[31:0]</obj_property>
+      <obj_property name="ObjectShortName">rd1[31:0]</obj_property>
    </wvobject>
-   <wvobject fp_name="/testbench/dut/rvsingle/srcbmux/d1" type="array">
-      <obj_property name="ElementShortName">d1[31:0]</obj_property>
-      <obj_property name="ObjectShortName">d1[31:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/testbench/dut/rvsingle/srcbmux/s" type="logic">
-      <obj_property name="ElementShortName">s</obj_property>
-      <obj_property name="ObjectShortName">s</obj_property>
-   </wvobject>
-   <wvobject fp_name="/testbench/dut/rvsingle/srcbmux/y" type="array">
-      <obj_property name="ElementShortName">y[31:0]</obj_property>
-      <obj_property name="ObjectShortName">y[31:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/testbench/dut/rvsingle/ctrl/md/ALUSrc" type="logic">
-      <obj_property name="ElementShortName">ALUSrc</obj_property>
-      <obj_property name="ObjectShortName">ALUSrc</obj_property>
-   </wvobject>
-   <wvobject fp_name="/testbench/dut/rvsingle/ctrl/md/FP" type="logic">
-      <obj_property name="ElementShortName">FP</obj_property>
-      <obj_property name="ObjectShortName">FP</obj_property>
-   </wvobject>
-   <wvobject fp_name="/testbench/dut/rvsingle/ctrl/md/FPlw" type="logic">
-      <obj_property name="ElementShortName">FPlw</obj_property>
-      <obj_property name="ObjectShortName">FPlw</obj_property>
-   </wvobject>
-   <wvobject fp_name="/testbench/dut/rvsingle/ctrl/md/FPsw" type="logic">
-      <obj_property name="ElementShortName">FPsw</obj_property>
-      <obj_property name="ObjectShortName">FPsw</obj_property>
+   <wvobject fp_name="/testbench/dut/rvsingle/frf/rd2" type="array">
+      <obj_property name="ElementShortName">rd2[31:0]</obj_property>
+      <obj_property name="ObjectShortName">rd2[31:0]</obj_property>
    </wvobject>
 </wave_config>

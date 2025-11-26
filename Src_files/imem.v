@@ -4,7 +4,7 @@ module imem(input  [31:0] a,
   reg [31:0] RAM[63:0]; 
 
   initial begin
-      $readmemh("falutest.txt",RAM); 
+      $readmemh("falutest2.mem",RAM); 
   end
 
   assign rd = RAM[a[31:2]]; // word aligned

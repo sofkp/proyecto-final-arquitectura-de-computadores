@@ -1,0 +1,19 @@
+# Programa FP32
+00002007  # flw   f1,0(x0)
+00402087  # flw   f2,4(x0)
+00202153  # fadd.s f3,f1,f2   (funct7=0000000, funct7[4:3]=00 → FP32)
+00302227  # fsw   f3,8(x0)
+
+# Programa FP16
+00C02107  # flh   f4,12(x0)   (usa tu FPlw con FP16 flag)
+00E02187  # flh   f5,14(x0)
+004021D3  # fadd.h f6,f4,f5   (funct7[4:3]=01 → FP16)
+010022A7  # fsh   f6,16(x0)
+
+# Datos FP32
+40400000  # 3.0
+40800000  # 4.0
+
+# Datos FP16
+00003E00  # 1.5 half precision
+00004000  # 2.0 half precision

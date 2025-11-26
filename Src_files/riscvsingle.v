@@ -12,8 +12,8 @@ module riscvsingle(input  clk, reset,
   
   // stage if_id (D)
   wire RegWriteD, ALUSrcD, MemWriteD, BranchD, JumpD, FPD, FPlwD, FPswD;
-  wire [1:0] ResultSrcD, ImmSrcD;
-  wire [2:0] ALUControlD;
+  wire [1:0] ResultSrcD;
+  wire [2:0] ALUControlD, ImmSrcD;
   wire [31:0] PCF, PCPlus4F, PCD, PCPlus4D, InstrD, RD1D, RD2D, ImmExtD;
 
   // stage id_ex (E)
@@ -48,8 +48,16 @@ module riscvsingle(input  clk, reset,
   assign Rs1D = InstrD[19:15];
   assign Rs2D = InstrD[24:20];
   
+  wire FPRegD, FPRegE, FPRegM, FPRegW;
+  assign FPRegD = FPD;
+  assign FPRegE = FPE; 
+  assign FPRegM = (InstrM[6:0] == 7'b1010011) || (InstrM[6:0] == 7'b0000111); //fp alu y lw
+  assign FPRegW = (InstrW[6:0] == 7'b1010011) || (InstrW[6:0] == 7'b0000111); 
+
+  
   hazard hazard_unit(.Rs1E(Rs1E), .Rs2E(Rs2E), .RdM(RdM), .RdW(RdW), .RegWriteM(RegWriteM), .RegWriteW(RegWriteW),
   .Rs1D(Rs1D), .Rs2D(Rs2D), .RdE(RdE), .ResultSrcE(ResultSrcE[0]), .PCSrcE(PCSrcE),
+  .FPRegD(FPRegD), .FPRegE(FPRegE), .FPRegM(FPRegM), .FPRegW(FPRegW),
   .ForwardAE(ForwardAE), .ForwardBE(ForwardBE), .StallF(StallF), .StallD(StallD), .FlushE(FlushE), .FlushD(FlushD)
   );
 
@@ -86,11 +94,11 @@ module riscvsingle(input  clk, reset,
  
  
   //--------------------id_ex stage--------------------
-
+  wire FP16D, FP16E;
   controller ctrl(
     .op      (InstrD[6:0]),
     .funct3  (InstrD[14:12]),
-    .funct7b5(InstrD[30]),
+    .funct7  (InstrD[31:25]),
     .ResultSrc(ResultSrcD),
     .MemWrite (MemWriteD),
     .ALUSrc   (ALUSrcD),
@@ -99,19 +107,43 @@ module riscvsingle(input  clk, reset,
     .ImmSrc   (ImmSrcD),
     .ALUControl(ALUControlD),
     .Branch   (BranchD),
-    .FP(FPD),.FPlw(FPlwD),.FPsw(FPswD)
+    .FP(FPD),.FPlw(FPlwD),.FPsw(FPswD), .FP16(FP16D)
   );
+  
+  wire FPAluD, FPAluE;
+  assign FPAluD = (InstrD[6:0] == 7'b1010011);  
+    
+  wire [31:0] RD1_intD, RD2_intD, RD1_fpD,  RD2_fpD;
+  
+  wire RegWriteIntW, RegWriteFPW;
 
-  regfile     rf(
+  assign RegWriteFPW  = RegWriteW & FPRegW;
+  assign RegWriteIntW = RegWriteW & ~FPRegW;
+  
+  int_regfile     irf(
     .clk(clk), 
-    .we3(RegWriteW), 
+    .we3(RegWriteIntW), 
     .a1(Rs1D), 
     .a2(Rs2D), 
     .a3(RdW), 
     .wd3(ResultW), 
-    .rd1(RD1D), 
-    .rd2(RD2D)
+    .rd1(RD1_intD), 
+    .rd2(RD2_intD)
   ); 
+  
+  fp_regfile     frf(
+    .clk(clk), 
+    .we3(RegWriteFPW), 
+    .a1(Rs1D), 
+    .a2(Rs2D), 
+    .a3(RdW),
+    .wd3(ResultW), 
+    .rd1(RD1_fpD), 
+    .rd2(RD2_fpD)
+  ); 
+  
+  assign RD1D = FPRegD ? RD1_fpD : RD1_intD;
+  assign RD2D = FPRegD ? RD2_fpD : RD2_intD;
 
   extend      ext(
     .instr(InstrD[31:7]), 
@@ -126,11 +158,13 @@ module riscvsingle(input  clk, reset,
     .RD1D(RD1D), .RD2D(RD2D), .ImmExtD(ImmExtD),.PCD(PCD), .PCPlus4D(PCPlus4D), 
     .RdD(InstrD[11:7]), .Rs1D(Rs1D), .Rs2D(Rs2D),
     .InstrD(InstrD),.InstrE(InstrE), .FPD(FPD), .FPlwD(FPlwD), .FPswD(FPswD),
+    .FP16D(FP16D), .FPAluD(FPAluD),
     //outs
     .RegWriteE (RegWriteE), .MemWriteE(MemWriteE), .ALUSrcE(ALUSrcE), .BranchE(BranchE),
     .JumpE(JumpE), .ALUControlE(ALUControlE), .ResultSrcE(ResultSrcE),
     .RD1E(RD1E), .RD2E(RD2E), .ImmExtE(ImmExtE), .PCE(PCE), .PCPlus4E(PCPlus4E), .RdE(RdE), 
-    .Rs1E(Rs1E), .Rs2E(Rs2E), .FPE(FPE), .FPlwE(FPlwE), .FPswE(FPswE)
+    .Rs1E(Rs1E), .Rs2E(Rs2E), .FPE(FPE), .FPlwE(FPlwE), .FPswE(FPswE),
+    .FP16E(FP16E), .FPAluE(FPAluE) 
   );
   
   //--------------------ex_mem stage--------------------
@@ -162,20 +196,21 @@ module riscvsingle(input  clk, reset,
                 (InstrE[31:25] == 7'b0001000) ? 2'b10 : //fmul
                 (InstrE[31:25] == 7'b0001100) ? 2'b11 : //fdiv
                                                 2'b00; //default
-    
-  wire mode_fp = 1'b1; //por ahora solo fp de 32
-  wire fp_start = FPE;
   
   wire [31:0] FPResultE;
   wire FPValidE;
   wire [4:0] FPFlagsE;
 
-  falu falu_unit(.clk(clk),.rst(reset),.start(fp_start),.op_a(SrcAE),.op_b(SrcBE),
-    .op_code(FPOp),.mode_fp(mode_fp),.round_mode(1'b0),.result(FPResultE),.valid_out(FPValidE),
+  falu falu_unit(.clk(clk),.rst(reset),.start(FPAluE),.op_a(SrcAE),.op_b(SrcBE),
+    .op_code(FPOp),.mode_fp(FP16E),.round_mode(1'b0),.result(FPResultE),.valid_out(FPValidE),
     .flags(FPFlagsE) );
-    
-  mux2 #(WIDTH) alu_mux (.d0(ALUResultE_normal),.d1(FPResultE),.s(FPE),.y(ALUResultE));
   
+  
+  wire [31:0] ALUResult_preFP = FPAluE ? FPResultE : ALUResultE_normal;
+  wire is_lui = (InstrE[6:0] == 7'b0110111);
+  assign ALUResultE = is_lui ? ImmExtE : ALUResult_preFP;
+
+
   adder       pcaddbranch(
     .a(PCE), 
     .b(ImmExtE), 
