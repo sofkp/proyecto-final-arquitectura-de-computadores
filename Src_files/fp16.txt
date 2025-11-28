@@ -1,0 +1,45 @@
+// Carga half: f1=5.0h (0x4500), f2=2.375h (0x40C0)
+000040B7  // lui x1,0x00004         # x1 base=0x00004000
+50008093  // addi x1,x1,0x500       # x1=0x00004500 (5.0h)
+00004137  // lui x2,0x00004
+0C010113  // addi x2,x2,0x0C0       # x2=0x000040C0 (2.375h)
+00102023  // sw x1,0(x0)            # mem[0]=5.0h
+00202223  // sw x2,4(x0)            # mem[4]=2.375h
+00002087  // flw f1,0(x0)
+00402107  // flw f2,4(x0)
+
+// [FP16 – Forwarding EX/MEM]
+042081D3  // fadd.h f3,f1,f2        # f3=7.375 -> 0x4760
+0C218253  // fsub.h f4,f3,f2        # f4=5.0   -> 0x4500 (ForwardAE)
+
+// [FP16 – Forwarding MEM/WB]
+142082D3  // fmul.h f5,f1,f2        # f5=11.875 -> 0x49F0
+00100293  // addi x5,x0,1           # separa fmul.h y fdiv.h
+1C128353  // fdiv.h f6,f5,f1        # f6≈2.375 -> 0x40C0 (Forward desde MEM/WB)
+
+// [FP16 – load-use hazard]
+00602427  // fsw f6,8(x0)
+00802387  // flw f7,8(x0)
+04238453  // fadd.h f8,f7,f2        # depende de flw inmediato -> StallF/StallD=1
+
+// [FP16 – store después de FP]
+08148553  // fsub.h f9,f8,f1        # dato recién producido
+00902427  // fsw f9,12(x0)          # prueba forwarding hacia store
+
+// [FP16 – casos especiales: ~pi y ~1e-3]
+000045B7  // lui x11,0x00004
+24858593  // addi x11,x11,0x248     # x11=0x00004248 (~3.140625h)
+00B02823  // sw x11,16(x0)
+00001637  // lui x12,0x00001
+41860613  // addi x12,x12,0x418     # x12=0x00001418 (~1e-3h)
+00C02A23  // sw x12,20(x0)
+01002507  // flw f10,16(x0)         # f10≈3.140625
+01402587  // flw f11,20(x0)         # f11≈1e-3
+04B50653  // fadd.h f12,f10,f11     # números no redondos
+0CB506D3  // fsub.h f13,f10,f11
+14B50753  // fmul.h f14,f10,f11
+1CB507D3  // fdiv.h f15,f10,f11
+00C02C27  // fsw f12,24(x0)
+00D02E27  // fsw f13,28(x0)
+02E02027  // fsw f14,32(x0)
+02F02227  // fsw f15,36(x0)

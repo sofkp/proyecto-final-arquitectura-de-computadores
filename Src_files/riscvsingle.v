@@ -191,18 +191,19 @@ module riscvsingle(input  clk, reset,
   ); 
   
   wire [1:0] FPOp;
-  assign FPOp = (InstrE[31:25] == 7'b0000000) ? 2'b00 : //fadd
-                (InstrE[31:25] == 7'b0000100) ? 2'b01 : //fsub
-                (InstrE[31:25] == 7'b0001000) ? 2'b10 : //fmul
-                (InstrE[31:25] == 7'b0001100) ? 2'b11 : //fdiv
-                                                2'b00; //default
+  assign FPOp = (InstrE[31:27] == 5'b00000) ? 2'b00 : // fadd
+                (InstrE[31:27] == 5'b00001) ? 2'b01 : // fsub
+                (InstrE[31:27] == 5'b00010) ? 2'b10 : // fmul
+                (InstrE[31:27] == 5'b00011) ? 2'b11 : // fdiv
+                                       2'b00;  // default
+
   
   wire [31:0] FPResultE;
   wire FPValidE;
   wire [4:0] FPFlagsE;
 
   falu falu_unit(.clk(clk),.rst(reset),.start(FPAluE),.op_a(SrcAE),.op_b(SrcBE),
-    .op_code(FPOp),.mode_fp(FP16E),.round_mode(1'b0),.result(FPResultE),.valid_out(FPValidE),
+    .op_code(FPOp),.mode_fp(~FP16E),.round_mode(1'b0),.result(FPResultE),.valid_out(FPValidE),
     .flags(FPFlagsE) );
   
   

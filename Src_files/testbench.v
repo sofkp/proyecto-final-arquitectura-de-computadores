@@ -17,9 +17,9 @@ module testbench();
   // initialize test
     initial begin
       reset = 1;
-      #2000;
+      #50;
       reset = 0;
-      #70000;
+      #100000;
       $finish;
     end
 
@@ -28,7 +28,7 @@ module testbench();
   // generate clock to sequence tests
   always begin
     clk = 1;
-    # 5000; clk = 0; # 5000;
+    # 15000; clk = 0; # 15000;
   end
 
 

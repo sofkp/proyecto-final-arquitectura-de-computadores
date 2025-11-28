@@ -1,0 +1,24 @@
+// Datos enteros: 5 y 10
+00500093  // addi x1,x0,5           # x1=5
+00A00113  // addi x2,x0,10          # x2=10
+00102023  // sw x1,0(x0)            # mem[0]=5
+00202223  // sw x2,4(x0)            # mem[4]=10
+00002183  // lw x3,0(x0)            # x3=5
+00402203  // lw x4,4(x0)            # x4=10
+
+// [Entero – Forwarding EX/MEM]
+004182B3  // add x5,x3,x4           # x5=15
+40428333  // sub x6,x5,x4           # RAW -> ForwardAE, x6=5
+
+// [Entero – Forwarding MEM/WB]
+004183B3  // add x7,x3,x4           # x7=15
+00000013  // addi x0,x0,0           # NOP
+40338433  // sub x8,x7,x3           # usa resultado desde MEM/WB, x8=10
+
+// [Entero – load-use hazard]
+00002483  // lw x9,0(x0)            # x9=5
+00448533  // add x10,x9,x4          # depende de lw -> StallF/StallD=1, FlushE=1
+
+// [Entero – store después de ALU]
+004185B3  // add x11,x3,x4          # x11=15
+00B02423  // sw x11,8(x0)           # mem[8]=15, forwarding hacia WriteData

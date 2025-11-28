@@ -36,7 +36,7 @@ module controller(input  [6:0] op,
   assign FPlw  = (op == 7'b0000111); //flw
   assign FPsw = (op == 7'b0100111); //fsw  
   
-  assign FP16 = (op == 7'b1010011) && (funct7[4:3] == 2'b01);
+  assign FP16 = (op == 7'b1010011) && (funct7[1:0] == 2'b10);
 
 
 endmodule
